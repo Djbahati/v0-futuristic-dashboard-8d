@@ -1,16 +1,44 @@
 'use client'
 
+import { useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { Sidebar } from '@/components/dashboard/sidebar'
-import { BarChart3, TrendingUp, Users, Activity, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { BarChart3, TrendingUp, Users, Activity, AlertCircle, Download } from 'lucide-react'
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+
+const patientTrendData = [
+  { month: 'Jan', patients: 400, appointments: 240, discharges: 120 },
+  { month: 'Feb', patients: 320, appointments: 221, discharges: 95 },
+  { month: 'Mar', patients: 200, appointments: 229, discharges: 110 },
+  { month: 'Apr', patients: 278, appointments: 200, discharges: 88 },
+  { month: 'May', patients: 189, appointments: 218, discharges: 102 },
+  { month: 'Jun', patients: 390, appointments: 250, discharges: 145 },
+]
+
+const diseaseData = [
+  { disease: 'Malaria', cases: 245 },
+  { disease: 'TB', cases: 123 },
+  { disease: 'Typhoid', cases: 89 },
+  { disease: 'Diabetes', cases: 156 },
+  { disease: 'Hypertension', cases: 204 },
+]
+
+const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
 export default function AnalyticsPage() {
   const { user } = useAuth()
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month')
 
   if (!user) {
     return null
+  }
+
+  const handleExport = (format: 'pdf' | 'csv') => {
+    console.log(`Exporting analytics as ${format}`)
+    alert(`Analytics exported as ${format.toUpperCase()}`)
   }
 
   return (
@@ -22,9 +50,38 @@ export default function AnalyticsPage() {
 
         <main className="flex-1 overflow-auto">
           <div className="container py-6 px-4 md:px-6">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-foreground">Analytics & Reports</h2>
-              <p className="text-muted-foreground mt-1">Healthcare metrics and system performance data</p>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground">Advanced Analytics</h2>
+                <p className="text-muted-foreground mt-1">Healthcare metrics and system performance data</p>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => handleExport('pdf')} variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button onClick={() => handleExport('csv')} variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  CSV
+                </Button>
+              </div>
+            </div>
+
+            {/* Time Range Selector */}
+            <div className="flex gap-2 mb-8">
+              {(['week', 'month', 'year'] as const).map(range => (
+                <button
+                  key={range}
+                  onClick={() => setTimeRange(range)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    timeRange === range
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {range.charAt(0).toUpperCase() + range.slice(1)}
+                </button>
+              ))}
             </div>
 
             {/* Key metrics */}
@@ -69,6 +126,50 @@ export default function AnalyticsPage() {
                 <CardContent>
                   <div className="text-3xl font-bold text-green-600 dark:text-green-400">99.8%</div>
                   <p className="text-xs text-muted-foreground mt-2">Last 30 days</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid gap-6 md:grid-cols-2 mb-8">
+              {/* Patient Trends */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Patient & Appointment Trends</CardTitle>
+                  <CardDescription>Historical data for {timeRange}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={patientTrendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis dataKey="month" stroke="rgba(0,0,0,0.5)" />
+                      <YAxis stroke="rgba(0,0,0,0.5)" />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="patients" stroke="#0ea5e9" strokeWidth={2} dot={{ fill: '#0ea5e9' }} />
+                      <Line type="monotone" dataKey="appointments" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
+                      <Line type="monotone" dataKey="discharges" stroke="#f59e0b" strokeWidth={2} dot={{ fill: '#f59e0b' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Disease Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top 5 Disease Cases</CardTitle>
+                  <CardDescription>Current case distribution</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={diseaseData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis dataKey="disease" stroke="rgba(0,0,0,0.5)" />
+                      <YAxis stroke="rgba(0,0,0,0.5)" />
+                      <Tooltip />
+                      <Bar dataKey="cases" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>

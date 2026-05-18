@@ -16,6 +16,10 @@ import {
   Home,
   Activity,
   AlertCircle,
+  Building2,
+  MapPin,
+  Brain,
+  Bell,
 } from 'lucide-react'
 
 interface NavItem {
@@ -67,6 +71,30 @@ const navItems: NavItem[] = [
     label: 'Consultations',
     icon: MessageSquare,
     roles: [UserRole.Doctor, UserRole.Nurse, UserRole.Admin],
+  },
+  {
+    href: '/facilities',
+    label: 'Facilities',
+    icon: Building2,
+    roles: [UserRole.Admin, UserRole.Ministry],
+  },
+  {
+    href: '/doctors-location',
+    label: 'Doctor Map',
+    icon: MapPin,
+    roles: [UserRole.Doctor, UserRole.Admin, UserRole.Ministry],
+  },
+  {
+    href: '/health-assistant',
+    label: 'Health Assistant',
+    icon: Brain,
+    roles: [UserRole.Doctor, UserRole.Nurse, UserRole.Admin, UserRole.Ministry],
+  },
+  {
+    href: '/notifications',
+    label: 'Notifications',
+    icon: Bell,
+    roles: [UserRole.Doctor, UserRole.Nurse, UserRole.Pharmacist, UserRole.Admin, UserRole.Ministry],
   },
   {
     href: '/settings',
