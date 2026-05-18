@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { Sidebar } from '@/components/dashboard/sidebar'
-import { Plus, AlertTriangle, Trending Up, MapPin, Calendar, TrendingDown } from 'lucide-react'
+import { Plus, AlertTriangle, TrendingUp, MapPin, Calendar, TrendingDown } from 'lucide-react'
 
 // Mock disease data
 const diseaseCases = [
@@ -137,7 +137,7 @@ export default function DiseasesPage() {
                           <span className="text-muted-foreground">{disease.district}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Trending Up className={`h-4 w-4 ${getTrendColor(disease.trend)}`} />
+                          <TrendingUp className={`h-4 w-4 ${getTrendColor(disease.trend)}`} />
                           <span className={`text-sm font-medium ${getTrendColor(disease.trend)}`}>
                             {disease.trend === 'up' ? 'Increasing' : disease.trend === 'down' ? 'Decreasing' : 'Stable'}
                           </span>
