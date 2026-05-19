@@ -13,13 +13,19 @@ export function FloatingAssistant() {
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [useVoice, setUseVoice] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const systemPrompt = buildAISystemPrompt({
-    userRole: user?.role,
-    district: user?.district,
-    specialization: user?.specialization,
-  })
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Only initialize chat when modal is open
+  const systemPrompt = user ? buildAISystemPrompt({
+    userRole: user.role,
+    district: user.district,
+    specialization: user.specialization,
+  }) : 'You are INEZA AI, Rwanda healthcare assistant.'
 
   const { messages, input = '', handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/ai-assistant',
@@ -28,7 +34,7 @@ export function FloatingAssistant() {
       {
         id: 'welcome',
         role: 'assistant',
-        content: `Hello ${user?.firstName || 'there'}! I'm INEZA AI, your healthcare assistant. How can I help you today? I can assist with disease information, treatment recommendations, medication queries, or public health guidance specific to Rwanda.`,
+        content: `Hello ${user?.firstName || 'there'}! I'm INEZA AI, your healthcare assistant. How can I help you today?`,
       },
     ],
   })
@@ -66,10 +72,17 @@ export function FloatingAssistant() {
     }
   }
 
+  if (!mounted) {
+    return null
+  }
+
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          console.log('[v0] Opening floating assistant')
+          setIsOpen(true)
+        }}
         className="fixed bottom-6 right-6 z-50 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground p-4 shadow-lg transition-all hover:scale-110 flex items-center gap-2"
         aria-label="Open health assistant"
       >
