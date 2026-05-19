@@ -20,6 +20,7 @@ import {
   MapPin,
   Brain,
   Bell,
+  Zap,
 } from 'lucide-react'
 
 interface NavItem {
@@ -89,6 +90,12 @@ const navItems: NavItem[] = [
     label: 'Health Assistant',
     icon: Brain,
     roles: [UserRole.Doctor, UserRole.Nurse, UserRole.Admin, UserRole.Ministry],
+  },
+  {
+    href: '/ai-insights',
+    label: 'AI Insights',
+    icon: Zap,
+    roles: [UserRole.Doctor, UserRole.Nurse, UserRole.Pharmacist, UserRole.Admin, UserRole.Ministry],
   },
   {
     href: '/notifications',
