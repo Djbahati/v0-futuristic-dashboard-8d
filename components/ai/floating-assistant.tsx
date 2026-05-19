@@ -21,7 +21,7 @@ export function FloatingAssistant() {
     specialization: user?.specialization,
   })
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input = '', handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/ai-assistant',
     system: systemPrompt,
     initialMessages: [
@@ -148,7 +148,7 @@ export function FloatingAssistant() {
           <Button
             type="submit"
             size="sm"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || !input || !input.trim()}
             className="px-2"
           >
             <Send className="h-4 w-4" />
