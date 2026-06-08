@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/auth-context'
+import { ThemeProvider } from '@/contexts/theme-context'
 import { FloatingAssistant } from '@/components/ai/floating-assistant'
 import './globals.css'
 
@@ -39,11 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
-        <AuthProvider>
-          {children}
-          <FloatingAssistant />
-          {process.env.NODE_ENV === 'production' && <Analytics />}
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <FloatingAssistant />
+            {process.env.NODE_ENV === 'production' && <Analytics />}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
