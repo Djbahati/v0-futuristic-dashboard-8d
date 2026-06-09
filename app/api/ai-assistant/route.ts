@@ -1,4 +1,4 @@
-import { convertToCoreMessages, streamText } from 'ai'
+import { streamText } from 'ai'
 
 const systemPrompt = `You are INEZA AI, a specialized healthcare assistant for Rwanda's healthcare system. You provide evidence-based health information and support clinical decision-making.
 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model: 'gpt-4-turbo',
       system: systemPrompt,
-      messages: convertToCoreMessages(messages),
+      messages,
       temperature: 0.7,
       maxTokens: 1024,
     })
