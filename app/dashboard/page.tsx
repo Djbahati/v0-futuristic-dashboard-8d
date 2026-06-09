@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { Sidebar } from '@/components/dashboard/sidebar'
+import { DashboardAIPanel } from '@/components/ai/dashboard-ai-panel'
 import {
   Users,
   Calendar,
@@ -263,6 +264,11 @@ export default function DashboardPage() {
                 </Card>
               </TabsContent>
             </Tabs>
+          </div>
+
+          {/* AI Insights Panel */}
+          <div className="mt-12 border-t border-border pt-12">
+            <DashboardAIPanel />
           </div>
         </main>
       </div>

@@ -1,0 +1,256 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  firstName     String?
+  lastName      String?
+  passwordHash  String
+  role          String    // Doctor, Nurse, Pharmacist, Admin, Ministry
+  phone         String?
+  specialization String?
+  district      String?
+  facility      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  patientsCreated Patient[] @relation("CreatedBy")
+  appointments  Appointment[]
+  consultations Consultation[]
+  prescriptions Prescription[]
+}
+
+model Patient {
+  id              String    @id @default(cuid())
+  uniqueId        String    @unique // Rwanda healthcare unique patient ID
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime
+  gender          String    // Male, Female, Other
+  phone           String?
+  email           String?
+  address         String?
+  district        String?
+  village         String?
+  emergencyContact String?
+  bloodType       String?
+  allergies       String?
+  chronicDiseases String?
+  insuranceNumber String?
+  createdBy       String    // User ID
+  createdByUser   User      @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  appointments    Appointment[]
+  consultations   Consultation[]
+  vaccinations    Vaccination[]
+  prescriptions   Prescription[]
+  labResults      LabResult[]
+  referrals       Referral[]
+
+  @@index([createdBy])
+}
+
+model Hospital {
+  id              String    @id @default(cuid())
+  name            String
+  code            String    @unique
+  district        String
+  type            String    // Central, District, Health Center
+  phone           String?
+  email           String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  beds            Int?
+  staff           Int?
+  services        String?   // JSON array of services
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  appointments    Appointment[]
+  consultations   Consultation[]
+}
+
+model Appointment {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  doctorId        String
+  doctor          User      @relation(fields: [doctorId], references: [id])
+  hospitalId      String
+  hospital        Hospital  @relation(fields: [hospitalId], references: [id])
+  appointmentDate DateTime
+  appointmentTime String
+  reason          String?
+  status          String    @default("scheduled") // scheduled, completed, cancelled
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([hospitalId])
+}
+
+model Consultation {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  doctorId        String
+  doctor          User      @relation(fields: [doctorId], references: [id])
+  hospitalId      String
+  hospital        Hospital  @relation(fields: [hospitalId], references: [id])
+  consultationDate DateTime  @default(now())
+  diagnosis       String?
+  symptoms        String?
+  clinicalNotes   String?
+  status          String    @default("completed") // completed, ongoing
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  prescriptions   Prescription[]
+  labResults      LabResult[]
+  referrals       Referral[]
+
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model Prescription {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  doctorId        String
+  doctor          User      @relation(fields: [doctorId], references: [id])
+  consultationId  String
+  consultation    Consultation @relation(fields: [consultationId], references: [id])
+  medicineId      String
+  medicineName    String
+  dosage          String
+  frequency       String
+  duration        String
+  instructions    String?
+  status          String    @default("active") // active, completed, cancelled
+  prescribedDate  DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model Medicine {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  genericName     String?
+  manufacturer    String?
+  dosageForm      String?   // tablet, capsule, injection, etc
+  strength        String?
+  price           Float?
+  stock           Int?      @default(0)
+  expiryDate      DateTime?
+  category        String?
+  sideEffects     String?
+  contraindications String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([name])
+}
+
+model Vaccination {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  vaccineName     String
+  vaccinationDate DateTime
+  dose            String?
+  nextDoseDate    DateTime?
+  status          String    @default("completed") // completed, pending
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([patientId])
+}
+
+model LabResult {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  consultationId  String
+  consultation    Consultation @relation(fields: [consultationId], references: [id])
+  testName        String
+  result          String
+  normalRange     String?
+  status          String    @default("completed") // pending, completed
+  testDate        DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([patientId])
+}
+
+model Referral {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  consultationId  String
+  consultation    Consultation @relation(fields: [consultationId], references: [id])
+  referrringDoctor String
+  referralTo      String    // Specialist name
+  reason          String?
+  status          String    @default("pending") // pending, accepted, completed
+  referralDate    DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([patientId])
+}
+
+model Disease {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  code            String?
+  symptoms        String?   // JSON array
+  transmission    String?
+  prevention      String?
+  treatment       String?
+  severity        String?   // Low, Medium, High
+  prevalence      Int?      @default(0)
+  trend           String?   // up, down, stable
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([name])
+}
+
+model DiseaseCase {
+  id              String    @id @default(cuid())
+  diseaseId       String
+  patientId       String?
+  district        String
+  confirmedDate   DateTime
+  status          String    // confirmed, suspected, recovered
+  severity        String?   // Mild, Moderate, Severe
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([diseaseId])
+  @@index([district])
+}

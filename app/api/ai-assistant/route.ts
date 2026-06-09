@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai'
 import { convertToCoreMessages, streamText } from 'ai'
 
 const systemPrompt = `You are INEZA AI, a specialized healthcare assistant for Rwanda's healthcare system. You provide evidence-based health information and support clinical decision-making.
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     const result = streamText({
-      model: openai('gpt-4-turbo'),
+      model: 'gpt-4-turbo',
       system: systemPrompt,
       messages: convertToCoreMessages(messages),
       temperature: 0.7,

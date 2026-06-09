@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Bell, LogOut, Settings, Activity } from 'lucide-react'
 
 export function DashboardHeader() {
@@ -47,6 +48,9 @@ export function DashboardHeader() {
 
         {/* Right section */}
         <div className="flex items-center gap-4">
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
