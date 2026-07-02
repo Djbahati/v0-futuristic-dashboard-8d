@@ -25,7 +25,7 @@ export default function AIInsightsPage() {
     specialization: user?.specialization,
   })
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input = '', handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/ai-assistant',
     system: systemPrompt,
     initialMessages: [
@@ -43,7 +43,7 @@ export default function AIInsightsPage() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (input.trim()) {
+    if (input && input.trim()) {
       const enrichedInput = enrichPromptWithContext(input, {
         userRole: user?.role,
         district: user?.district,
