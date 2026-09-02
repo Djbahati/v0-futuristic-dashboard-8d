@@ -37,6 +37,7 @@ export default function ScheduleAppointmentPage() {
   const router = useRouter()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [showPatientList, setShowPatientList] = useState(false)
   const [showDoctorList, setShowDoctorList] = useState(false)
@@ -81,23 +82,22 @@ export default function ScheduleAppointmentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    // Validate
-    if (!formData.patientId || !formData.doctorId || !formData.appointmentDate || !formData.appointmentTime) {
-      setLoading(false)
-      alert('Please fill in all required fields')
+    setError('')
+    const today = new Date().toISOString().split('T')[0]
+    if (!formData.patientId || !formData.doctorId || !formData.appointmentDate || !formData.appointmentTime || !formData.reason.trim()) {
+      setError('Select a patient, doctor, date, time, and enter a reason for the visit.')
       return
     }
-
-    // Simulate API call
-    setTimeout(() => {
+    if (formData.appointmentDate < today) {
+      setError('Appointment date cannot be in the past.')
+      return
+    }
+    setLoading(true)
+    window.setTimeout(() => {
       setLoading(false)
       setSuccess(true)
-      setTimeout(() => {
-        router.push('/appointments')
-      }, 2000)
-    }, 1000)
+      window.setTimeout(() => router.push('/appointments'), 1200)
+    }, 700)
   }
 
   return (
@@ -124,8 +124,14 @@ export default function ScheduleAppointmentPage() {
               </div>
             </div>
 
+            {error && (
+              <div role="alert" className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 size-5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
             {success ? (
-              <Card className="border-2 border-green-500">
+              <Card className="border-2 border-primary/40 bg-primary/5">
                 <CardContent className="py-8 flex flex-col items-center text-center">
                   <CheckCircle className="h-12 w-12 text-green-600 mb-4" />
                   <h3 className="text-xl font-bold text-foreground mb-2">Appointment Scheduled!</h3>
