@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { Sidebar } from '@/components/dashboard/sidebar'
-import { ArrowLeft, Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus, X, AlertCircle, CheckCircle } from 'lucide-react'
 
 const rwandanDistricts = [
   'Kigali', 'Bugesera', 'Gatsinze', 'Kamonyi', 'Kayonza', 'Kirehe', 'Makuza',
@@ -21,6 +21,8 @@ export default function AddPatientPage() {
   const router = useRouter()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [allergies, setAllergies] = useState<string[]>([])
   const [allergyInput, setAllergyInput] = useState('')
   const [chronicDiseases, setChronicDiseases] = useState<string[]>([])
@@ -67,13 +69,28 @@ export default function AddPatientPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setError('')
 
-    // Simulate API call
-    setTimeout(() => {
+    const today = new Date().toISOString().split('T')[0]
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.uniqueId.trim() || !formData.dateOfBirth) {
+      setError('Complete all required personal information before submitting.')
+      return
+    }
+    if (formData.dateOfBirth > today) {
+      setError('Date of birth cannot be in the future.')
+      return
+    }
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Enter a valid email address or leave the email field empty.')
+      return
+    }
+
+    setLoading(true)
+    window.setTimeout(() => {
       setLoading(false)
-      router.push('/patients')
-    }, 1000)
+      setSuccess(true)
+      window.setTimeout(() => router.push('/patients'), 1200)
+    }, 700)
   }
 
   return (
@@ -100,7 +117,22 @@ export default function AddPatientPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div role="alert" className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 size-5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            {success && (
+              <Card className="mb-6 border-primary/40 bg-primary/5">
+                <CardContent className="flex items-center gap-3 py-5 text-primary">
+                  <CheckCircle className="size-6" />
+                  <div><p className="font-semibold">Patient record created</p><p className="text-sm text-muted-foreground">Returning to the patient list...</p></div>
+                </CardContent>
+              </Card>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-6" aria-busy={loading}>
+
               {/* Personal Information */}
               <Card>
                 <CardHeader>
